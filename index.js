@@ -24,7 +24,7 @@ bot.on("text", async (ctx) => {
     const response = await axios.post(
       "https://openrouter.ai/api/v1/chat/completions",
       {
-        model: "deepseek/deepseek-chat-v3.1:free",
+        model: "meta-llama/llama-3-8b-instruct:free",
         messages: [
           {
             role: "user",
