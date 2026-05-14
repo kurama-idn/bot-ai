@@ -38,4 +38,13 @@ bot.on("text", async (ctx) => {
   }
 });
 
-bot.launch();
+bot.telegram.deleteWebhook({ drop_pending_updates: true })
+  .then(() => {
+    bot.launch({
+      dropPendingUpdates: true
+    });
+    console.log("Bot jalan bro");
+  })
+  .catch((err) => {
+    console.log("Launch error:", err);
+  });
