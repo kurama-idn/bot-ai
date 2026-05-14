@@ -1,3 +1,11 @@
+const express = require("express");
+const app = express();
+
+app.get("/", (req, res) => res.send("Bot hidup bro"));
+
+app.listen(process.env.PORT || 3000, () => {
+  console.log("Web server aktif");
+});
 require("dotenv").config();
 const { Telegraf } = require("telegraf");
 const axios = require("axios");
