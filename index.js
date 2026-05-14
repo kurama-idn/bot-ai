@@ -5,27 +5,32 @@ const { Telegraf } = require("telegraf");
 const axios = require("axios");
 
 const app = express();
-
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
-// ROOT
+const MODEL = "meta-llama/llama-3-8b-instruct:free";
+
 app.get("/", (req, res) => {
   res.send("Bot hidup bro 🤖");
 });
 
-// START
 bot.start((ctx) => {
   ctx.reply("Halo bro 👋 Bot AI aktif.");
 });
 
-// CHAT AI
 bot.on("text", async (ctx) => {
   try {
+    console.log("Pakai model:", MODEL);
+
     const response = await axios.post(
       "https://openrouter.ai/api/v1/chat/completions",
       {
-        model: "meta-llama/llama-3-8b-instruct:free",
+        model: MODEL,
         messages: [
+          {
+            role: "system",
+            content:
+              "Kamu adalah bot AI Telegram yang ramah, santai, dan menjawab dalam bahasa Indonesia.",
+          },
           {
             role: "user",
             content: ctx.message.text,
@@ -40,47 +45,33 @@ bot.on("text", async (ctx) => {
       }
     );
 
-    const reply =
-      response.data.choices[0].message.content;
-
+    const reply = response.data.choices?.[0]?.message?.content || "AI tidak kasih jawaban bro.";
     ctx.reply(reply);
   } catch (err) {
-    console.log(
-      "ERROR:",
-      err.response?.data || err.message
-    );
+    console.log("ERROR FULL:", err.response?.data || err.message);
 
     ctx.reply(
       "Error bro: " +
-        (err.response?.data?.error?.message ||
-          err.message)
+        (err.response?.data?.error?.message || err.message)
     );
   }
 });
 
-// WEBHOOK
 app.use(bot.webhookCallback("/bot"));
 
 const PORT = process.env.PORT || 3000;
-
 const WEBHOOK_URL = `https://${process.env.RAILWAY_STATIC_URL}/bot`;
 
 bot.telegram
   .setWebhook(WEBHOOK_URL)
   .then(() => {
-    console.log(
-      "Webhook aktif:",
-      WEBHOOK_URL
-    );
+    console.log("Webhook aktif:", WEBHOOK_URL);
+    console.log("Model aktif:", MODEL);
   })
   .catch((err) => {
     console.log("Webhook error:", err.message);
   });
 
-// SERVER
 app.listen(PORT, () => {
-  console.log(
-    "Server jalan di port",
-    PORT
-  );
+  console.log("Server jalan di port", PORT);
 });
